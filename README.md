@@ -5,7 +5,7 @@ Run SIPP instruction
 2. run cd ./centralized/sipp
 python3 multi_sipp.py input.yaml output.yaml to generate the output
 3. visualize using python3 visualize_sipp.py input.yaml output.yaml 
-4. 
+4. exmaple agent 0 is obstacle
 ![屏幕快照 2022-07-26 上午2 57 21](https://user-images.githubusercontent.com/98841015/180979273-0e5ec7a1-2f0e-43fc-852a-1dcf634962c1.png)
 
 ![屏幕快照 2022-07-26 上午2 57 09](https://user-images.githubusercontent.com/98841015/180979278-be897a3a-1284-44ff-b9d5-0eacd71b2fc6.png)
