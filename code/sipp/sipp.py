@@ -1,8 +1,10 @@
 
 import argparse
+from pickle import FALSE
 import yaml
 from math import fabs
 from bisect import bisect
+import random
 
 class State(object):
     def __init__(self, position=(-1,-1), t=0, interval=(0,float('inf'))):
@@ -106,6 +108,7 @@ class SippPlanner(SippGraph):
         self.goal = tuple(map["agents"][agent_id]["goal"])
         self.name = map["agents"][agent_id]["name"]
         self.open = []
+        self.agent_id = agent_id
 
     def get_successors(self, state):
         successors = []
@@ -191,6 +194,37 @@ class SippPlanner(SippGraph):
             temp_dict = {"x":setpoint.position[0], "y":setpoint.position[1], "t":setpoint.time}
             path_list.append(temp_dict)
 
+        data = {self.name:path_list}
+        return data
+    
+    def random_walk(self,t,collision_paths):
+        goal_reached = False
+        path = []
+        path.append(self.start)
+        while(not goal_reached):
+            valid_neighbor = self.get_valid_neighbours(path[-1])
+            next = random.choice(valid_neighbor)
+            for i in range(len(collision_paths)):
+                agent = list(collision_paths[i].keys())[0]
+                agent_no = [int(s) for s in agent if s.isdigit()]
+                if agent_no[0] != self.agent_id:
+                    if len(path)>=len(collision_paths[i][agent]):
+                        agent_position = collision_paths[i][agent][-1]
+                    else:
+                        agent_position = collision_paths[i][agent][len(path)]
+                    if agent_position['x'] == next[0] and agent_position['y'] == next[1]:
+                        return []
+            path.append(next)
+            if next[0] == self.goal[0] and next[1] == self.goal[1]:
+                goal_reached = True
+        
+        path_list = []
+        for i in range(len(path)):
+            x = path[i][0]
+            y = path[i][1]
+            t = i
+            temp_dict = {"x":x, "y":y, "t":t}
+            path_list.append(temp_dict)
         data = {self.name:path_list}
         return data
 

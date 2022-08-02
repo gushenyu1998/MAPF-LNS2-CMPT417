@@ -73,17 +73,12 @@ def main():
     for j in range(len(path_agent_combination)):
         V = detect_collision(path_agent_combination[j][0], path_agent_combination[j][1])
 
-    print(V)
-
     selected_collision = random.choice(V)
-
-    print(selected_collision)
 
     As = []
     As.append(selected_collision['a1'])
     As.append(selected_collision['a2'])
 
-    print(len(V))
     for k in range(len(V)):
         if selected_collision['a1'] == V[k]['a1'] and selected_collision['a2'] != V[k]['a2']:
             As.append(V[k]['a2'])
@@ -93,10 +88,34 @@ def main():
             As.append(V[k]['a2'])
         elif selected_collision['a2'] == V[k]['a2'] and selected_collision['a1'] != V[k]['a1']:
             As.append(V[k]['a1'])
-    
-    print(As)
 
+    As_path = []
+    goal_path = []
+    for m in range(len(P)):
+        check_agent = list(P[m].keys())[0]
+        if check_agent not in As:
+            map["dynamic_obstacles"].update(P[m])
+            goal_path.append(P[m])
+        else:
+            As_path.append(P[m])
 
+    while len(As)!=1:
+        selected_agent = random.choice(As)
+        selected_agent_no = [int(s) for s in selected_agent if s.isdigit()]
+        sipp_planner = SippPlanner(map,selected_agent_no[0])
+        n_path = sipp_planner.random_walk(selected_collision['timestep'],As_path)
+        if len(n_path)!=0:
+            map["dynamic_obstacles"].update(n_path)
+            goal_path.append(n_path)
+            As.remove(selected_agent)
+            for i in range(len(As_path)):
+                agent = list(As_path[i].keys())[0]
+                if agent == selected_agent:
+                    del As_path[i]
+                    break
+    goal_path.append(As_path[0])
+    print(goal_path)
+        
         
 
 

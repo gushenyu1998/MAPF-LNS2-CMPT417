@@ -3,7 +3,6 @@
 import argparse
 import yaml
 from math import fabs
-from graph_generation import SippGraph, State
 from sipp import SippPlanner
 
 def main():
