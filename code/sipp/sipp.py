@@ -46,16 +46,19 @@ class SippGrid(object):
             self.interval_list.sort()
 
 class SippGraph(object):
-    def __init__(self, map):
+
+    def __init__(self, map,string):
         self.map = map
         self.dimensions = map["map"]["dimensions"]
 
         self.obstacles = [tuple(v) for v in map["map"]["obstacles"]]        
         self.dyn_obstacles = map["dynamic_obstacles"]
 
-        self.sipp_graph = {}
-        self.init_graph()
-        self.init_intervals()
+        if string != 'random':
+            self.sipp_graph = {}
+            self.init_graph()
+            self.init_intervals()
+        
 
     def init_graph(self):
         for i in range(self.dimensions[0]):
@@ -102,8 +105,9 @@ class SippGraph(object):
 
 
 class SippPlanner(SippGraph):
-    def __init__(self, map, agent_id):
-        SippGraph.__init__(self, map)
+
+    def __init__(self, map, agent_id, string):
+        SippGraph.__init__(self, map, string)
         self.start = tuple(map["agents"][agent_id]["start"])
         self.goal = tuple(map["agents"][agent_id]["goal"])
         self.name = map["agents"][agent_id]["name"]
@@ -250,7 +254,7 @@ def main():
             print(exc)
 
     # compute first plan
-    sipp_planner = SippPlanner(map,0)
+    sipp_planner = SippPlanner(map,0,"single_agent")
 
     if sipp_planner.compute_plan():
         plan = sipp_planner.get_plan()

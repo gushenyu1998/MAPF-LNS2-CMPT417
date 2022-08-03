@@ -59,7 +59,7 @@ def main():
     P = []
 
     for i in range(len(map["agents"])):
-        sipp_planner = SippPlanner(map,i)
+        sipp_planner = SippPlanner(map,i,'singe_agent')
         if sipp_planner.compute_plan():
             P.append(sipp_planner.get_plan())
 
@@ -102,11 +102,14 @@ def main():
     while len(As)!=1:
         selected_agent = random.choice(As)
         selected_agent_no = [int(s) for s in selected_agent if s.isdigit()]
-        sipp_planner = SippPlanner(map,selected_agent_no[0])
+        sipp_planner = SippPlanner(map,selected_agent_no[0],"random")
         n_path = sipp_planner.random_walk(selected_collision['timestep'],As_path)
         if len(n_path)!=0:
             map["dynamic_obstacles"].update(n_path)
             goal_path.append(n_path)
+            output["schedule"].update(n_path)
+            with open(args.output, 'w') as output_yaml:
+                yaml.safe_dump(output, output_yaml)  
             As.remove(selected_agent)
             for i in range(len(As_path)):
                 agent = list(As_path[i].keys())[0]
@@ -114,7 +117,9 @@ def main():
                     del As_path[i]
                     break
     goal_path.append(As_path[0])
-    print(goal_path)
+    output["schedule"].update(As_path[0])
+    with open(args.output, 'w') as output_yaml:
+        yaml.safe_dump(output, output_yaml)  
         
         
 

@@ -27,7 +27,7 @@ def main():
             print(exc)
 
     for i in range(len(map["agents"])):
-        sipp_planner = SippPlanner(map,i)
+        sipp_planner = SippPlanner(map,i,'multiple_agent')
     
         if sipp_planner.compute_plan():
             plan = sipp_planner.get_plan()
