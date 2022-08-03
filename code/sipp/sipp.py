@@ -208,16 +208,24 @@ class SippPlanner(SippGraph):
         while(not goal_reached):
             valid_neighbor = self.get_valid_neighbours(path[-1])
             next = random.choice(valid_neighbor)
+            current = path[-1]
             for i in range(len(collision_paths)):
                 agent = list(collision_paths[i].keys())[0]
                 agent_no = [int(s) for s in agent if s.isdigit()]
                 if agent_no[0] != self.agent_id:
                     if len(path)>=len(collision_paths[i][agent]):
                         agent_position = collision_paths[i][agent][-1]
+                        agent_position_prev = collision_paths[i][agent][-1]
                     else:
                         agent_position = collision_paths[i][agent][len(path)]
+                        agent_position_prev = collision_paths[i][agent][len(path)-1]
                     if agent_position['x'] == next[0] and agent_position['y'] == next[1]:
                         return []
+                    if agent_position['x'] == current[0] and agent_position['y'] == current[1] and agent_position_prev['x'] == next[0] and agent_position_prev['y'] == next[1]:
+                        return []
+
+
+
             path.append(next)
             if next[0] == self.goal[0] and next[1] == self.goal[1]:
                 goal_reached = True
