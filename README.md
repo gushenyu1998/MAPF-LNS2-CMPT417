@@ -12,3 +12,6 @@ python3 multi_sipp.py input.yaml output.yaml to generate the output
 ![屏幕快照 2022-07-26 上午2 57 09](https://user-images.githubusercontent.com/98841015/180979278-be897a3a-1284-44ff-b9d5-0eacd71b2fc6.png)
 
 <img width="321" alt="屏幕快照 2022-07-26 上午2 55 43" src="https://user-images.githubusercontent.com/98841015/180979279-70c9afd2-9086-475b-8ff7-117407488959.png">
+
+Run benchmark python3 multi_sipp.py --map "input/*.yaml" --output "output/*.yaml"
+
