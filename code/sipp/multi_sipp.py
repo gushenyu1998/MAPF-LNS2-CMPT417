@@ -9,31 +9,26 @@ from pathlib import Path
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--map", help="input file containing map and dynamic obstacles")
-    parser.add_argument("--output", help="output file with the schedule")
-    
-    
     args = parser.parse_args()
     
     # Read Map
-    for input,output in zip(glob.glob(args.map),glob.glob(args.output)):
+    for input in glob.glob(args.map):
         f = open(input, 'r')
-        o = open(output, 'r')
         map = yaml.load(f, Loader=yaml.FullLoader)
-        out = yaml.load(o, Loader=yaml.FullLoader)
-        
+        out = {'schedule':[]}
+
         for i in range(len(map["agents"])):
             sipp_planner = SippPlanner(map,i, 'singe_agent')
             if sipp_planner.compute_plan():
                 plan = sipp_planner.get_plan()
-                out["schedule"].update(plan)
-                w = open(output, 'w')
-                yaml.safe_dump(out, w)
+                print(plan)
+                out["schedule"].append(plan)
             else:
                 plan = sipp_planner.get_plan()
-                out["schedule"].update(plan)
-                w = open(output, 'w')
-                yaml.safe_dump(out, w)
-                print("Plan not found")
+                out["schedule"].append(plan)
+        file = open('./output.yaml', 'w', encoding='utf-8')
+        yaml.dump(out, file)
+        file.close()
 
 
 

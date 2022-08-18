@@ -188,6 +188,8 @@ class SippPlanner(SippGraph):
             return data
 
 
+
+
         # first setpoint
         setpoint = self.plan[0]
         temp_dict = {"x":setpoint.position[0], "y":setpoint.position[1], "t":setpoint.time}
