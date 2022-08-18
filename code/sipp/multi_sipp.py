@@ -1,5 +1,3 @@
-
-
 import argparse
 import yaml
 from math import fabs
@@ -24,16 +22,18 @@ def main():
         out = yaml.load(o, Loader=yaml.FullLoader)
         
         for i in range(len(map["agents"])):
-            sipp_planner = SippPlanner(map,i)
+            sipp_planner = SippPlanner(map,i, 'singe_agent')
             if sipp_planner.compute_plan():
                 plan = sipp_planner.get_plan()
                 out["schedule"].update(plan)
-                map["dynamic_obstacles"].update(plan)
                 w = open(output, 'w')
                 yaml.safe_dump(out, w)
-            else: 
+            else:
+                plan = sipp_planner.get_plan()
+                out["schedule"].update(plan)
+                w = open(output, 'w')
+                yaml.safe_dump(out, w)
                 print("Plan not found")
-        print(out)
 
 
 

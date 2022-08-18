@@ -1,8 +1,10 @@
 
 import argparse
+from pickle import FALSE
 import yaml
 from math import fabs
 from bisect import bisect
+import random
 
 class State(object):
     def __init__(self, position=(-1,-1), t=0, interval=(0,float('inf'))):
@@ -18,6 +20,7 @@ class SippGrid(object):
         self.parent_state = State()
 
     def split_interval(self, t, last_t = False):
+        #build safe interval ? 
         for interval in self.interval_list:
             if last_t:
                 if t<=interval[0]:
@@ -43,16 +46,19 @@ class SippGrid(object):
             self.interval_list.sort()
 
 class SippGraph(object):
-    def __init__(self, map):
+
+    def __init__(self, map,string):
         self.map = map
         self.dimensions = map["map"]["dimensions"]
 
         self.obstacles = [tuple(v) for v in map["map"]["obstacles"]]        
         self.dyn_obstacles = map["dynamic_obstacles"]
 
-        self.sipp_graph = {}
-        self.init_graph()
-        self.init_intervals()
+        if string != 'random':
+            self.sipp_graph = {}
+            self.init_graph()
+            self.init_intervals()
+        
 
     def init_graph(self):
         for i in range(self.dimensions[0]):
@@ -99,12 +105,14 @@ class SippGraph(object):
 
 
 class SippPlanner(SippGraph):
-    def __init__(self, map, agent_id):
-        SippGraph.__init__(self, map)
+
+    def __init__(self, map, agent_id, string):
+        SippGraph.__init__(self, map, string)
         self.start = tuple(map["agents"][agent_id]["start"])
         self.goal = tuple(map["agents"][agent_id]["goal"])
         self.name = map["agents"][agent_id]["name"]
         self.open = []
+        self.agent_id = agent_id
 
     def get_successors(self, state):
         successors = []
@@ -139,7 +147,7 @@ class SippPlanner(SippGraph):
         self.open.append((f_start, s_start))
 
         while (not goal_reached):
-            if self.open == {}: 
+            if self.open == []:
                 # Plan not found
                 return 0
             s = self.open.pop(0)[1]
@@ -172,6 +180,14 @@ class SippPlanner(SippGraph):
     def get_plan(self):
         path_list = []
 
+
+        try:
+            setpoint = self.plan[0]
+        except Exception as e:
+            data = {self.name: [{"t":0, "x": self.start[0], "y": self.start[1]}]}
+            return data
+
+
         # first setpoint
         setpoint = self.plan[0]
         temp_dict = {"x":setpoint.position[0], "y":setpoint.position[1], "t":setpoint.time}
@@ -190,6 +206,45 @@ class SippPlanner(SippGraph):
             temp_dict = {"x":setpoint.position[0], "y":setpoint.position[1], "t":setpoint.time}
             path_list.append(temp_dict)
 
+        data = {self.name:path_list}
+        return data
+    
+    def random_walk(self,t,collision_paths):
+        goal_reached = False
+        path = []
+        path.append(self.start)
+        while(not goal_reached):
+            valid_neighbor = self.get_valid_neighbours(path[-1])
+            next = random.choice(valid_neighbor)
+            current = path[-1]
+            for i in range(len(collision_paths)):
+                agent = list(collision_paths[i].keys())[0]
+                agent_no = [int(s) for s in agent if s.isdigit()]
+                if agent_no[0] != self.agent_id:
+                    if len(path)>=len(collision_paths[i][agent]):
+                        agent_position = collision_paths[i][agent][-1]
+                        agent_position_prev = collision_paths[i][agent][-1]
+                    else:
+                        agent_position = collision_paths[i][agent][len(path)]
+                        agent_position_prev = collision_paths[i][agent][len(path)-1]
+                    if agent_position['x'] == next[0] and agent_position['y'] == next[1]:
+                        return []
+                    if agent_position['x'] == current[0] and agent_position['y'] == current[1] and agent_position_prev['x'] == next[0] and agent_position_prev['y'] == next[1]:
+                        return []
+
+
+
+            path.append(next)
+            if next[0] == self.goal[0] and next[1] == self.goal[1]:
+                goal_reached = True
+        
+        path_list = []
+        for i in range(len(path)):
+            x = path[i][0]
+            y = path[i][1]
+            t = i
+            temp_dict = {"x":x, "y":y, "t":t}
+            path_list.append(temp_dict)
         data = {self.name:path_list}
         return data
 
@@ -215,7 +270,7 @@ def main():
             print(exc)
 
     # compute first plan
-    sipp_planner = SippPlanner(map,0)
+    sipp_planner = SippPlanner(map,0,"single_agent")
 
     if sipp_planner.compute_plan():
         plan = sipp_planner.get_plan()

@@ -5,6 +5,8 @@ import random
 from math import fabs
 from sipp import SippPlanner
 
+N = 5
+
 def get_location(path,time):
     if time<=0:
         return {'x':path[0]['x'],'y':path[0]['y']}
@@ -69,7 +71,7 @@ def main():
         path_agent_tuples.append({'agent':res, 'path': P[i][res]})
 
     path_agent_combination = list(itertools.combinations(path_agent_tuples,2))
-
+    V=[]
     for j in range(len(path_agent_combination)):
         V = detect_collision(path_agent_combination[j][0], path_agent_combination[j][1])
 
@@ -119,10 +121,7 @@ def main():
     goal_path.append(As_path[0])
     output["schedule"].update(As_path[0])
     with open(args.output, 'w') as output_yaml:
-        yaml.safe_dump(output, output_yaml)  
-        
-        
-
+        yaml.safe_dump(output, output_yaml)
 
 if __name__ == "__main__":
     main()
