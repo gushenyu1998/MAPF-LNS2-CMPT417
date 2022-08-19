@@ -37,6 +37,7 @@ def agent_random_walk(path_list_tuple, collision_list, map):
     del random_agent['path'][randon_start_time: len(random_agent['path'])]
     move = ''
     walk_time = randon_start_time-1
+    agent = random_agent['agent']
     while True:
         if len(movement) == 0:
             print("random work fail")
@@ -52,7 +53,7 @@ def agent_random_walk(path_list_tuple, collision_list, map):
                 random_agent['path'].append(temp)
                 return random_agent
             # test of the agent move again the map
-            if check_random_movement_constraint(temp, map):
+            if check_random_movement_constraint(agent,temp, temp_prev, map):
                 random_agent['path'].append(temp)
             else:
                 movement.remove('left')
@@ -66,7 +67,7 @@ def agent_random_walk(path_list_tuple, collision_list, map):
                 random_agent['path'].append(temp)
                 return random_agent
             # test of the agent move again the map
-            if check_random_movement_constraint(temp, map):
+            if check_random_movement_constraint(agent, temp, temp_prev, map):
                 random_agent['path'].append(temp)
             else:
                 movement.remove('right')
@@ -80,7 +81,7 @@ def agent_random_walk(path_list_tuple, collision_list, map):
                 random_agent['path'].append(temp)
                 return random_agent
             # test of the agent move again the map
-            if check_random_movement_constraint(temp, map):
+            if check_random_movement_constraint(agent, temp, temp_prev, map):
                 random_agent['path'].append(temp)
             else:
                 movement.remove('top')
@@ -94,7 +95,7 @@ def agent_random_walk(path_list_tuple, collision_list, map):
                 random_agent['path'].append(temp)
                 return random_agent
             # test of the agent move again the map
-            if check_random_movement_constraint(temp, map):
+            if check_random_movement_constraint(agent, temp, temp_prev, map):
                 random_agent['path'].append(temp)
             else:
                 movement.remove('down')
@@ -103,7 +104,6 @@ def agent_random_walk(path_list_tuple, collision_list, map):
             temp = {'x': temp_prev['x'], 'y': temp_prev['y'], 't': walk_time + 1}
             if walk_time+1 > (map['map']['dimensions'][0] * map['map']['dimensions'][1]) ^ 4:
                 print('search fail, return None')
-                print(random_agent)
                 return None
             random_agent['path'].append(temp)
             walk_time+=1
@@ -115,15 +115,21 @@ def agent_random_walk(path_list_tuple, collision_list, map):
 
         for agent in path_list_tuple:
             loc = get_location(agent['path'], walk_time + 1)
-            loc_prev = get_location(agent['path'], walk_time + 1)
-            if random_walk_detect_collision(temp, loc, temp_prev, loc_prev):
-                print("random walk detect collision")
+            loc_prev = get_location(agent['path'], walk_time)
+            if random_walk_detect_collision(temp, loc, temp_prev, loc_prev) == "V collision":
+                print("random walk detect vector collision")
                 random_agent['path'].append(temp)
-                constraint_list.append(temp)
+                temp_vertice = {'agent':random_agent['agent'], 'loc': [temp]}
+                constraint_list.append(temp_vertice)
                 As_list.append(random_agent)
                 return
+            elif random_walk_detect_collision(temp, loc, temp_prev, loc_prev) == "E collision":
+                print("random walk detect edge collision")
+                temp_edge= {'agent':random_agent['agent'], 'loc': [temp_prev,temp]}
+                constraint_list.append(temp_edge)
+                As_list.append(random_agent)
         walk_time += 1
-        #
+
         movement = ['left', 'right', 'top', 'down', 'wait']
 
 
@@ -135,7 +141,7 @@ def goal_test(agent, temp, map):
     return False
 
 
-def check_random_movement_constraint(temp, map):
+def check_random_movement_constraint(agent,temp, temp_prev, map):
     # check temp not hit the wall nor not go out of map
     if temp['x'] < 0 or temp['x'] > map['map']['dimensions'][0] or \
             temp['y'] < 0 or temp['y'] > map['map']['dimensions'][1]:
@@ -151,26 +157,27 @@ def check_random_movement_constraint(temp, map):
         else:
             pass
     # check temp not hit the constraint
-    try:
-        a = constraint_list.index((temp['x'], temp['y']))
-        return False
-    except Exception as e:
-        if not type(e) == ValueError:
-            print("Exception not Value error happens, quit program")
-            sys.exit(0)
-        else:
-            pass
+    for constraint in constraint_list:
+        if agent == constraint['agent']:
+            if len(constraint['loc']) == 1:
+                if temp['x'] == constraint['loc'][0]['x'] and temp['y'] == constraint['loc'][0]['y'] and temp['t'] == constraint['loc'][0]['t']:
+                    print(constraint)
+                    return False
+            elif len(constraint['loc']) == 2:
+                if temp_prev['x'] == constraint['loc'][0]['x'] and temp_prev['y'] == constraint['loc'][0]['y'] and temp_prev['t'] == constraint['loc'][0]['t'] and \
+                        temp['x'] == constraint['loc'][1]['x'] and temp['y'] == constraint['loc'][1]['y'] and temp['t'] == constraint['loc'][1]['t']:
+                    return False
     return True
 
 
 def random_walk_detect_collision(temp, loc, temp_prev, loc_prev):
     # vertex collision detect
     if temp['x'] == loc['x'] and temp['y'] == loc['y']:
-        return True
+        return "V collision"
     if temp['x'] == loc_prev['x'] and temp['y'] == loc_prev['y'] and \
             temp_prev['x'] == loc['x'] and temp_prev['y'] == loc['y']:
-        return True
-    return False
+        return "E collision"
+    return "No collision"
 
 
 def get_As_split(As, tuple_list):
