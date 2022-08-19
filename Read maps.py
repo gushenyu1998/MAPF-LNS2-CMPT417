@@ -39,7 +39,7 @@ def import_mapf_instance(filename):
 
 
 if __name__ == '__main__':
-    for file in sorted(glob.glob(r'./instances/37.txt')):
+    for file in sorted(glob.glob(r'./instances/exp2_1.txt')):
         my_map, starts, goals = import_mapf_instance(file)
         if len(starts) != len(goals):
             raise BaseException("start_goal error")
@@ -60,7 +60,7 @@ if __name__ == '__main__':
                         }
 
         agents = {'agents': agents_content, 'map':map_solid_obs, 'dynamic_obstacles':{}}
-        file = open('./yaml_ta  .yaml', 'w', encoding='utf-8')
+        file = open('./yaml_test.yaml', 'w', encoding='utf-8')
         yaml.dump(agents, file)
         file.close()
 
