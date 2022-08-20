@@ -1,0 +1,29 @@
+agents:
+- goal: [3, 5]
+  name: agent0
+  start: [3, 4]
+- goal: [6, 6]
+  name: agent1
+  start: [5, 7]
+- goal: [7, 0]
+  name: agent2
+  start: [4, 2]
+- goal: [3, 0]
+  name: agent3
+  start: [3, 1]
+- goal: [7, 6]
+  name: agent4
+  start: [5, 1]
+- goal: [6, 4]
+  name: agent5
+  start: [6, 1]
+dynamic_obstacles: {}
+map:
+  dimensions: [8, 8]
+  obstacles:
+  - !!python/tuple [0, 0]
+  - !!python/tuple [4, 0]
+  - !!python/tuple [4, 1]
+  - !!python/tuple [3, 2]
+  - !!python/tuple [4, 6]
+  - !!python/tuple [6, 7]
