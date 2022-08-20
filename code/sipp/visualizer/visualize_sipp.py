@@ -20,6 +20,7 @@ class Animation:
         self.schedule = schedule
         self.obstacle_schedule = map["dynamic_obstacles"]
         self.combined_schedule = {}
+        print(self.schedule["schedule"])
         self.combined_schedule.update(self.schedule["schedule"])
         self.combined_schedule.update(self.obstacle_schedule)
 
